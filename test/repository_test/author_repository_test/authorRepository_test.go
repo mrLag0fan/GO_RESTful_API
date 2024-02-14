@@ -10,7 +10,7 @@ import (
 
 var repositoryAuthor repository.Repository
 var correctAuthor entity.Author
-var incorrectAuthor entity.Author
+var incorrectEntity entity.Book
 
 func init() {
 	repositoryAuthor = repository.NewAuthorRepository(&test_uuid.TestUUIDGenerator{})
@@ -20,7 +20,7 @@ func init() {
 		Birthdate: time.Now().AddDate(-50, 0, 0),
 		DeathDate: time.Now(),
 	}
-	incorrectAuthor = entity.Author{}
+	incorrectEntity = entity.Book{}
 	repositoryAuthor.Clear()
 }
 
@@ -32,9 +32,9 @@ func TestCreateCorrect(t *testing.T) {
 	}
 }
 func TestCreateIncorrect(t *testing.T) {
-	got := repositoryAuthor.Create(&incorrectAuthor)
+	got := repositoryAuthor.Create(&incorrectEntity)
 	want := false
 	if got != want {
-		t.Errorf("Create(%s) = %t; want %t", incorrectAuthor, got, want)
+		t.Errorf("Create(%s) = %t; want %t", incorrectEntity, got, want)
 	}
 }

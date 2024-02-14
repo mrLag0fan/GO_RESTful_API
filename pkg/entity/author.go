@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"log"
+	"time"
+)
 
 type Author struct {
 	ID        string
@@ -12,4 +15,12 @@ type Author struct {
 
 func (a *Author) GetID() string {
 	return a.ID
+}
+func EntityToAuthor(e Entity) *Author {
+	author, ok := e.(*Author)
+	if !ok {
+		log.Printf("%s - [ERROR] Passed entity is not of type Author", time.Now())
+		return nil
+	}
+	return author
 }
