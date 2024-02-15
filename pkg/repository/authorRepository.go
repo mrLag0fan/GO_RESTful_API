@@ -44,6 +44,7 @@ func (repo *AuthorRepository) Delete(ID string) bool {
 	}
 	return true
 }
+
 func (repo *AuthorRepository) Update(ID string, entity e.Entity) bool {
 	author := e.EntityToAuthor(entity)
 	_, err := repo.DB.Exec(`UPDATE "author" SET 
