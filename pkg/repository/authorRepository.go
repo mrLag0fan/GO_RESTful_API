@@ -3,10 +3,9 @@ package repository
 import (
 	"GO_RESTful_API/pkg/database"
 	e "GO_RESTful_API/pkg/entity"
+	"GO_RESTful_API/pkg/logger"
 	"GO_RESTful_API/pkg/my_uuid"
 	"database/sql"
-	"log"
-	"time"
 )
 
 type AuthorRepository struct {
@@ -15,6 +14,7 @@ type AuthorRepository struct {
 }
 
 func NewAuthorRepository(generator my_uuid.UuidGenerator) *AuthorRepository {
+	logger.Log("trace", "The new author repository was created.")
 	return &AuthorRepository{
 		DB:            database.DB,
 		uuidGenerator: generator,
@@ -22,6 +22,7 @@ func NewAuthorRepository(generator my_uuid.UuidGenerator) *AuthorRepository {
 }
 
 func (repo *AuthorRepository) Create(entity e.Entity) bool {
+	logger.Log("trace", "Author insertion into database begun....")
 	author := e.EntityToAuthor(entity)
 	_, err := repo.DB.Exec(`INSERT INTO "author" VALUES ($1, $2, $3, $4, $5)`,
 		repo.uuidGenerator.GenerateUUID(),
@@ -30,22 +31,26 @@ func (repo *AuthorRepository) Create(entity e.Entity) bool {
 		author.Birthdate,
 		author.DeathDate)
 	if err != nil {
-		log.Fatalf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return false
 	}
+	logger.Log("trace", "Author insertin into database finished.")
 	return true
 }
 
 func (repo *AuthorRepository) Delete(ID string) bool {
+	logger.Log("trace", "Author deleteing from database begun....")
 	_, err := repo.DB.Exec(`DELETE FROM author WHERE id = $1`, ID)
 	if err != nil {
-		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return false
 	}
+	logger.Log("trace", "Author deleteing from database finished.")
 	return true
 }
 
 func (repo *AuthorRepository) Update(ID string, entity e.Entity) bool {
+	logger.Log("trace", "Author updating from database begun....")
 	author := e.EntityToAuthor(entity)
 	_, err := repo.DB.Exec(`UPDATE "author" SET 
                     name=$1, 
@@ -59,27 +64,31 @@ func (repo *AuthorRepository) Update(ID string, entity e.Entity) bool {
 		author.DeathDate,
 		ID)
 	if err != nil {
-		log.Fatalf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return false
 	}
+	logger.Log("trace", "Author updating from database finished.")
 	return false
 }
 
 func (repo *AuthorRepository) GetByID(ID string) e.Entity {
+	logger.Log("trace", "Author receiving from database begun....")
 	row := repo.DB.QueryRow("SELECT * FROM author WHERE id = $1", ID)
 	var author e.Author
 	err := row.Scan(&author.ID, &author.Name, &author.Surname, &author.Birthdate, &author.DeathDate)
 	if err != nil {
-		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return nil
 	}
+	logger.Log("trace", "Author receiving from database finished.")
 	return &author
 }
 
 func (repo *AuthorRepository) GetAll() []e.Entity {
+	logger.Log("trace", "Receiving all authors from database begun....")
 	rows, err := repo.DB.Query("SELECT * FROM author")
 	if err != nil {
-		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return make([]e.Entity, 0)
 	}
 
@@ -95,18 +104,21 @@ func (repo *AuthorRepository) GetAll() []e.Entity {
 			&author.Birthdate,
 			&author.DeathDate)
 		if err != nil {
-			log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+			logger.Log("error", err.Error())
 		}
 		res = append(res, &author)
 	}
+	logger.Log("trace", "Receiving all authors from database finished.")
 	return res
 }
 
 func (repo *AuthorRepository) Clear() bool {
+	logger.Log("trace", "Clearing authors from database begun....")
 	_, err := repo.DB.Exec("DELETE FROM author")
 	if err != nil {
-		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return false
 	}
+	logger.Log("trace", "Clearing authors from database finished.")
 	return true
 }

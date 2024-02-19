@@ -1,6 +1,7 @@
 package database
 
 import (
+	"GO_RESTful_API/pkg/logger"
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq"
@@ -18,6 +19,7 @@ const (
 var DB *sql.DB
 
 func init() {
+	logger.Log("trace", "Initializing new database connection")
 	var err error
 
 	connectionString := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -31,5 +33,6 @@ func init() {
 	if err = DB.Ping(); err != nil {
 		panic(err)
 	}
-	fmt.Println("The database is connected")
+	logger.Log("info", "Database connected!")
+	logger.Log("trace", "Initializing new database connection")
 }
