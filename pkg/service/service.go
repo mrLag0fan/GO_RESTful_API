@@ -1,12 +1,12 @@
 package service
 
-import "GO_RESTful_API/pkg/entity"
+import "GO_RESTful_API/pkg/entities"
 
 type Service interface {
-	Create(entity entity.Entity) (bool, map[string]string)
+	Create(entity entities.Entity) (bool, map[string]string)
 	Delete(ID string) bool
-	Update(ID string, entity entity.Entity) (bool, map[string]string)
-	GetByID(ID string) entity.Entity
-	GetAll() []entity.Entity
+	Update(ID string, entity entities.Entity) (bool, map[string]string)
+	GetByID(ID string) entities.Entity
+	GetAll() []entities.Entity
 	Clear() bool
 }

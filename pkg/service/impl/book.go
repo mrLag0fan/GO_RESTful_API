@@ -1,7 +1,7 @@
-package service
+package impl
 
 import (
-	"GO_RESTful_API/pkg/entity"
+	"GO_RESTful_API/pkg/entities"
 	"GO_RESTful_API/pkg/logger"
 	"GO_RESTful_API/pkg/repository"
 	"GO_RESTful_API/pkg/validation"
@@ -18,8 +18,8 @@ func NewBookService(repo repository.Repository, validator validation.Validator) 
 	return &BookService{repo: repo, validator: validator}
 }
 
-func (a BookService) Create(entity entity.Entity) (bool, map[string]string) {
-	logger.Log("trace", "Book was received from controller for creation.")
+func (a BookService) Create(entity entities.Entity) (bool, map[string]string) {
+	logger.Log("trace", "Book was received from http for creation.")
 	logger.Log("debug", fmt.Sprintf("Book: %s", entity))
 
 	if a.validator.Valid(entity) {
@@ -35,15 +35,15 @@ func (a BookService) Create(entity entity.Entity) (bool, map[string]string) {
 }
 
 func (a BookService) Delete(ID string) bool {
-	logger.Log("trace", "Book UUID was received from controller for deleting book.")
+	logger.Log("trace", "Book UUID was received from http for deleting book.")
 	logger.Log("debug", fmt.Sprintf("Book ID: %s", ID))
 
 	return a.repo.Delete(ID)
 
 }
 
-func (a BookService) Update(ID string, entity entity.Entity) (bool, map[string]string) {
-	logger.Log("trace", "Book UUID and updated book entity was received from controller for updating book.")
+func (a BookService) Update(ID string, entity entities.Entity) (bool, map[string]string) {
+	logger.Log("trace", "Book UUID and updated book entities was received from http for updating book.")
 	logger.Log("debug", fmt.Sprintf("Book ID: %s \t New Book: %s", ID, entity))
 
 	if a.validator.Valid(entity) {
@@ -55,18 +55,18 @@ func (a BookService) Update(ID string, entity entity.Entity) (bool, map[string]s
 	return false, a.validator.GetErrors()
 }
 
-func (a BookService) GetByID(ID string) entity.Entity {
-	logger.Log("trace", "Book UUID was received from controller for receiving book.")
+func (a BookService) GetByID(ID string) entities.Entity {
+	logger.Log("trace", "Book UUID was received from http for receiving book.")
 	logger.Log("debug", fmt.Sprintf("Book ID: %s", ID))
 	return a.repo.GetByID(ID)
 }
 
-func (a BookService) GetAll() []entity.Entity {
+func (a BookService) GetAll() []entities.Entity {
 	logger.Log("trace", "Receiving all books.")
 	return a.repo.GetAll()
 }
 
 func (a BookService) Clear() bool {
-	logger.Log("trace", "Book UUID was received from controller for receiving book.")
+	logger.Log("trace", "Book UUID was received from http for receiving book.")
 	return a.repo.Clear()
 }

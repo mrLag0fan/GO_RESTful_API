@@ -1,6 +1,7 @@
-package entity
+package book
 
 import (
+	"GO_RESTful_API/pkg/entities"
 	"log"
 	"time"
 )
@@ -17,10 +18,10 @@ func (b *Book) GetID() string {
 	return b.ID
 }
 
-func EntityToBook(e Entity) *Book {
+func EntityToBook(e entities.Entity) *Book {
 	book, ok := e.(*Book)
 	if !ok {
-		log.Printf("%s - [ERROR] Passed entity is not of type Book", time.Now())
+		log.Printf("%s - [ERROR] Passed entities is not of type Book", time.Now())
 		return nil
 	}
 	return book

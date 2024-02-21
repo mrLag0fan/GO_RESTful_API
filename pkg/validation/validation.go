@@ -1,6 +1,6 @@
 package validation
 
-import e "GO_RESTful_API/pkg/entity"
+import e "GO_RESTful_API/pkg/entities"
 
 type Validator interface {
 	Valid(entity e.Entity) bool

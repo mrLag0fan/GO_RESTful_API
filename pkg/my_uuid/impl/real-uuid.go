@@ -1,4 +1,4 @@
-package real_uuid
+package impl
 
 import (
 	"GO_RESTful_API/pkg/logger"

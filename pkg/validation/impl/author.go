@@ -1,7 +1,8 @@
-package author
+package impl
 
 import (
-	e "GO_RESTful_API/pkg/entity"
+	e "GO_RESTful_API/pkg/entities"
+	"GO_RESTful_API/pkg/entities/impl/book"
 	"GO_RESTful_API/pkg/logger"
 	"regexp"
 )
@@ -10,16 +11,16 @@ type AuthorValidator struct {
 	err map[string]string
 }
 
-func NewValidator() *AuthorValidator {
+func NewAuthorValidator() *AuthorValidator {
 	return &AuthorValidator{make(map[string]string)}
 }
 
 func (validator *AuthorValidator) Valid(entity e.Entity) bool {
 	logger.Log("trace", "Author validation started....")
 	validator.err = make(map[string]string)
-	author, ok := entity.(*e.Author)
+	author, ok := entity.(*book.Author)
 	if !ok {
-		validator.err["Wrong entity"] = "Passed entity is not of type Author"
+		validator.err["Wrong entity"] = "Passed entities is not of type Author"
 		return false
 	}
 	validator.validName(*author)
@@ -33,7 +34,7 @@ func (validator *AuthorValidator) GetErrors() map[string]string {
 	return validator.err
 }
 
-func (validator *AuthorValidator) validName(entity e.Author) {
+func (validator *AuthorValidator) validName(entity book.Author) {
 	logger.Log("trace", "Author name validation started....")
 	if entity.Name == "" {
 		validator.err["Author Name Length"] = "Author name shouldn't be empty string."
@@ -45,7 +46,7 @@ func (validator *AuthorValidator) validName(entity e.Author) {
 	logger.Log("trace", "Author name validation finished.")
 }
 
-func (validator *AuthorValidator) validSurname(entity e.Author) {
+func (validator *AuthorValidator) validSurname(entity book.Author) {
 	logger.Log("trace", "Author surname validation started....")
 	if entity.Name == "" {
 		validator.err["Author Surname Length"] = "Author surname shouldn't be empty string."
@@ -57,7 +58,7 @@ func (validator *AuthorValidator) validSurname(entity e.Author) {
 	logger.Log("trace", "Author surname validation finished.")
 }
 
-func (validator *AuthorValidator) validDeathDate(entity e.Author) {
+func (validator *AuthorValidator) validDeathDate(entity book.Author) {
 	logger.Log("trace", "Author surname validation started....")
 	if entity.DeathDate.Before(entity.Birthdate) {
 		validator.err["Author Death Date"] = "Author Death Date should be after birth date."

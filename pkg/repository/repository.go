@@ -1,12 +1,13 @@
 package repository
 
-import "GO_RESTful_API/pkg/entity"
+import "GO_RESTful_API/pkg/entities"
 
 type Repository interface {
-	Create(entity entity.Entity) bool
+	Create(entity entities.Entity) bool
 	Delete(ID string) bool
-	Update(ID string, entity entity.Entity) bool
-	GetByID(ID string) entity.Entity
-	GetAll() []entity.Entity
+	Update(ID string, entity entities.Entity) bool
+	GetByID(ID string) entities.Entity
+	GetAll() []entities.Entity
+	Exist(ID string) bool
 	Clear() bool
 }
