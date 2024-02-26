@@ -7,11 +7,11 @@ import (
 )
 
 type Author struct {
-	ID        string
-	Name      string
-	Surname   string
-	Birthdate time.Time
-	DeathDate time.Time
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Surname   string    `json:"surname"`
+	Birthdate time.Time `json:"birth-date"`
+	DeathDate time.Time `json:"death-date"`
 }
 
 func (a *Author) GetID() string {

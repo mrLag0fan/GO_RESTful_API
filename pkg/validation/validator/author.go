@@ -1,4 +1,4 @@
-package impl
+package validator
 
 import (
 	e "GO_RESTful_API/pkg/entities"

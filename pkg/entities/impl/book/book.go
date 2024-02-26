@@ -7,11 +7,11 @@ import (
 )
 
 type Book struct {
-	ID            string
-	Title         string
-	NumberOfPages int
-	Description   string
-	AuthorID      string
+	ID            string `json:"id"`
+	Title         string `json:"title"`
+	NumberOfPages int    `json:"number-of-pages"`
+	Description   string `json:"description"`
+	AuthorID      string `json:"author-id"`
 }
 
 func (b *Book) GetID() string {
