@@ -1,4 +1,4 @@
-package service
+package services
 
 import "GO_RESTful_API/pkg/entities"
 
