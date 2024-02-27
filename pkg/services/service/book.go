@@ -28,13 +28,13 @@ func (a BookService) Create(entity entities.Entity) (bool, map[string]string) {
 	}
 
 	logger.Log("trace", "The creation of the Book was finished on service layer. ")
-	logger.Log("warning", fmt.Sprintf("Validation error. %s", a.validator.GetErrors()))
+	logger.Log("warning", fmt.Sprintf("Validation errors. %s", a.validator.GetErrors()))
 
 	return false, a.validator.GetErrors()
 
 }
 
-func (a BookService) Delete(ID string) bool {
+func (a BookService) Delete(ID string) (bool, error) {
 	logger.Log("trace", "Book UUID was received from http for deleting book.")
 	logger.Log("debug", fmt.Sprintf("Book ID: %s", ID))
 
@@ -51,22 +51,22 @@ func (a BookService) Update(ID string, entity entities.Entity) (bool, map[string
 	}
 
 	logger.Log("trace", "The updating of the book was finished on service layer. ")
-	logger.Log("warning", fmt.Sprintf("Validation error. %s", a.validator.GetErrors()))
+	logger.Log("warning", fmt.Sprintf("Validation errors. %s", a.validator.GetErrors()))
 	return false, a.validator.GetErrors()
 }
 
-func (a BookService) GetByID(ID string) entities.Entity {
+func (a BookService) GetByID(ID string) (entities.Entity, error) {
 	logger.Log("trace", "Book UUID was received from http for receiving book.")
 	logger.Log("debug", fmt.Sprintf("Book ID: %s", ID))
 	return a.repo.GetByID(ID)
 }
 
-func (a BookService) GetAll() []entities.Entity {
+func (a BookService) GetAll() ([]entities.Entity, error) {
 	logger.Log("trace", "Receiving all books.")
 	return a.repo.GetAll()
 }
 
-func (a BookService) Clear() bool {
+func (a BookService) Clear() (bool, error) {
 	logger.Log("trace", "Book UUID was received from http for receiving book.")
 	return a.repo.Clear()
 }

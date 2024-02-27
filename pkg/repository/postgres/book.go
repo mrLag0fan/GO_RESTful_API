@@ -24,7 +24,7 @@ func NewBookRepository(generator my_uuid.UuidGenerator) *BookRepository {
 	}
 }
 
-func (repo *BookRepository) Create(entity e.Entity) bool {
+func (repo *BookRepository) Create(entity e.Entity) (bool, error) {
 	logger.Log("trace", "Book insertion into database begun....")
 	book := e2.EntityToBook(entity)
 	_, err := repo.DB.Exec(`INSERT INTO "book" VALUES ($1, $2, $3, $4, $5)`,
@@ -34,25 +34,25 @@ func (repo *BookRepository) Create(entity e.Entity) bool {
 		book.Description,
 		book.AuthorID)
 	if err != nil {
-		logger.Log("error", err.Error())
-		return false
+		logger.Log("errors", err.Error())
+		return false, err
 	}
 	logger.Log("trace", "Book insertion into database finished.")
-	return true
+	return true, err
 }
 
-func (repo *BookRepository) Delete(ID string) bool {
+func (repo *BookRepository) Delete(ID string) (bool, error) {
 	logger.Log("trace", "Book deleting from database begun....")
 	_, err := repo.DB.Exec(`DELETE FROM book WHERE id = $1`, ID)
 	if err != nil {
 		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
-		return false
+		return false, err
 	}
 	logger.Log("trace", "Book deleting from database finished.")
-	return true
+	return true, err
 }
 
-func (repo *BookRepository) Update(ID string, entity e.Entity) bool {
+func (repo *BookRepository) Update(ID string, entity e.Entity) (bool, error) {
 	logger.Log("trace", "Book updating from database begun....")
 	book := e2.EntityToBook(entity)
 	_, err := repo.DB.Exec(`UPDATE "book" SET 
@@ -67,32 +67,32 @@ func (repo *BookRepository) Update(ID string, entity e.Entity) bool {
 		book.AuthorID,
 		ID)
 	if err != nil {
-		logger.Log("error", err.Error())
-		return false
+		logger.Log("errors", err.Error())
+		return false, err
 	}
 	logger.Log("trace", "Book updating from database finished.")
-	return false
+	return false, err
 }
 
-func (repo *BookRepository) GetByID(ID string) e.Entity {
+func (repo *BookRepository) GetByID(ID string) (e.Entity, error) {
 	logger.Log("trace", "Book receiving from database begun....")
 	row := repo.DB.QueryRow("SELECT * FROM book WHERE id = $1", ID)
 	var book e2.Book
 	err := row.Scan(&book.ID, &book.Title, &book.NumberOfPages, &book.Description, &book.AuthorID)
 	if err != nil {
 		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
-		return nil
+		return nil, err
 	}
 	logger.Log("trace", "Book receiving from database finished.")
-	return &book
+	return &book, err
 }
 
-func (repo *BookRepository) GetAll() []e.Entity {
+func (repo *BookRepository) GetAll() ([]e.Entity, error) {
 	logger.Log("trace", "Receiving all books from database begun....")
 	rows, err := repo.DB.Query("SELECT * FROM book")
 	if err != nil {
 		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
-		return make([]e.Entity, 0)
+		return make([]e.Entity, 0), err
 	}
 
 	defer rows.Close()
@@ -112,28 +112,28 @@ func (repo *BookRepository) GetAll() []e.Entity {
 		res = append(res, &book)
 	}
 	logger.Log("trace", "Receiving all books from database finished.")
-	return res
+	return res, err
 }
 
-func (repo *BookRepository) Exist(ID string) bool {
+func (repo *BookRepository) Exist(ID string) (bool, error) {
 	logger.Log("trace", "Checking whether the book exists....")
 	var exists bool
 	err := repo.DB.QueryRow("SELECT (exists(SELECT 1 FROM book WHERE id = $1))", ID).Scan(&exists)
 	if err != nil {
-		logger.Log("error", err.Error())
-		return false
+		logger.Log("errors", err.Error())
+		return false, err
 	}
 	logger.Log("trace", "Checking whether the book exists finished.")
-	return exists
+	return exists, err
 }
 
-func (repo *BookRepository) Clear() bool {
+func (repo *BookRepository) Clear() (bool, error) {
 	logger.Log("trace", "Clearing books from database begun....")
 	_, err := repo.DB.Exec("DELETE FROM book")
 	if err != nil {
 		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
-		return false
+		return false, err
 	}
 	logger.Log("trace", "Clearing books from database finished.")
-	return true
+	return true, err
 }

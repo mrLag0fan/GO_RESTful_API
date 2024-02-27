@@ -28,13 +28,13 @@ func (a AuthorService) Create(entity entities.Entity) (bool, map[string]string) 
 	}
 
 	logger.Log("trace", "The creation of the author was finished on service layer. ")
-	logger.Log("warning", fmt.Sprintf("Validation error. %s", a.validator.GetErrors()))
+	logger.Log("warning", fmt.Sprintf("Validation errors. %s", a.validator.GetErrors()))
 
 	return false, a.validator.GetErrors()
 
 }
 
-func (a AuthorService) Delete(ID string) bool {
+func (a AuthorService) Delete(ID string) (bool, error) {
 	logger.Log("trace", "Author UUID was received from http for deleting author.")
 	logger.Log("debug", fmt.Sprintf("Author ID: %s", ID))
 
@@ -51,22 +51,22 @@ func (a AuthorService) Update(ID string, entity entities.Entity) (bool, map[stri
 	}
 
 	logger.Log("trace", "The updating of the author was finished on service layer. ")
-	logger.Log("warning", fmt.Sprintf("Validation error. %s", a.validator.GetErrors()))
+	logger.Log("warning", fmt.Sprintf("Validation errors. %s", a.validator.GetErrors()))
 	return false, a.validator.GetErrors()
 }
 
-func (a AuthorService) GetByID(ID string) entities.Entity {
+func (a AuthorService) GetByID(ID string) (entities.Entity, error) {
 	logger.Log("trace", "Author UUID was received from http for receiving author.")
 	logger.Log("debug", fmt.Sprintf("Author ID: %s", ID))
 	return a.repo.GetByID(ID)
 }
 
-func (a AuthorService) GetAll() []entities.Entity {
+func (a AuthorService) GetAll() ([]entities.Entity, error) {
 	logger.Log("trace", "Receiving all authors.")
 	return a.repo.GetAll()
 }
 
-func (a AuthorService) Clear() bool {
+func (a AuthorService) Clear() (bool, error) {
 	logger.Log("trace", "Author UUID was received from http for receiving author.")
 	return a.repo.Clear()
 }
