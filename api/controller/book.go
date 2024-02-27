@@ -21,7 +21,7 @@ func (bc *BookController) GetAll(w http.ResponseWriter, r *http.Request) {
 	res := bc.service.GetAll()
 	err := json.NewEncoder(w).Encode(res)
 	if err != nil {
-		logger.Log("error", err.Error())
+		logger.Log("errors", err.Error())
 	}
 }
 
