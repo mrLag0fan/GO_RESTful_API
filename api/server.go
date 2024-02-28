@@ -21,8 +21,9 @@ func NewServer(controllers_ []Controller) *Server {
 	return server
 }
 
-func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Home page")
+func (server Server) homePage(w http.ResponseWriter, _ *http.Request) {
+	_, err := fmt.Fprintf(w, "Home page")
+	ErrorResponse(&w, err)
 }
 
 func (server Server) HandleRequests() {

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"GO_RESTful_API/pkg/logger"
+	"GO_RESTful_API/api"
 	"GO_RESTful_API/pkg/mapper/book"
 	"GO_RESTful_API/pkg/services"
 	"encoding/json"
@@ -20,73 +20,69 @@ func NewAuthorController(s services.Service) *AuthorController {
 	}
 }
 
-func (ac *AuthorController) GetAll(w http.ResponseWriter, r *http.Request) {
-	res, _ := ac.service.GetAll()
-	err := json.NewEncoder(w).Encode(res)
-	if err != nil {
-		logger.Log("errors", err.Error())
-		http.Error(w, "Failed to encode result", http.StatusInternalServerError)
-	}
+func (ac *AuthorController) GetAll(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	res, err := ac.service.GetAll()
+	api.ErrorResponse(&w, err)
+	err = json.NewEncoder(w).Encode(res)
+	api.ErrorResponse(&w, err)
 	w.WriteHeader(http.StatusOK)
 }
 
 func (ac *AuthorController) Get(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id := vars["id"]
-	res, _ := ac.service.GetByID(id)
-	err := json.NewEncoder(w).Encode(res)
-	if err != nil {
-		logger.Log("errors", err.Error())
-		http.Error(w, "Failed to encode result", http.StatusInternalServerError)
-	}
+	res, err := ac.service.GetByID(id)
+	api.ErrorResponse(&w, err)
+	err = json.NewEncoder(w).Encode(res)
+	api.ErrorResponse(&w, err)
 	w.WriteHeader(http.StatusOK)
 }
 
 func (ac *AuthorController) Create(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
-		return
-	}
+	api.ErrorResponse(&w, err)
 	author, err := book.MapJsonToAuthor(body)
-	if err != nil {
-		logger.Log("errors", err.Error())
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		return
+	api.ErrorResponse(&w, err)
+	ok, err := ac.service.Create(&author)
+	api.ErrorResponse(&w, err)
+	if ok {
+		w.WriteHeader(http.StatusCreated)
 	}
-	ac.service.Create(&author)
-	w.WriteHeader(http.StatusCreated)
 }
 
 func (ac *AuthorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
-		return
-	}
+	api.ErrorResponse(&w, err)
 	author, err := book.MapJsonToAuthor(body)
-	if err != nil {
-		logger.Log("errors", err.Error())
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
-		return
+	api.ErrorResponse(&w, err)
+	ok, err := ac.service.Update(id, &author)
+	api.ErrorResponse(&w, err)
+	if ok {
+		w.WriteHeader(http.StatusCreated)
 	}
-	ac.service.Update(id, &author)
-	w.WriteHeader(http.StatusCreated)
+
 }
 
 func (ac *AuthorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	ok, _ := ac.service.Delete(id)
+	ok, err := ac.service.Delete(id)
+	api.ErrorResponse(&w, err)
 	if ok {
 		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
-func (ac *AuthorController) Clear(w http.ResponseWriter, r *http.Request) {
-	ac.service.Clear()
+func (ac *AuthorController) Clear(w http.ResponseWriter, _ *http.Request) {
+	ok, err := ac.service.Clear()
+	api.ErrorResponse(&w, err)
+	if ok {
+		w.WriteHeader(http.StatusNoContent)
+	}
 }
 
 func (ac *AuthorController) HandleRequests(router *mux.Router) {
