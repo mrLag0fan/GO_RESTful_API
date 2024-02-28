@@ -3,7 +3,9 @@ package validator
 import (
 	e "GO_RESTful_API/pkg/entities"
 	"GO_RESTful_API/pkg/entities/impl/book"
+	"GO_RESTful_API/pkg/errors"
 	"GO_RESTful_API/pkg/logger"
+	"encoding/json"
 	"regexp"
 )
 
@@ -32,6 +34,15 @@ func (validator *AuthorValidator) Valid(entity e.Entity) bool {
 
 func (validator *AuthorValidator) GetErrors() map[string]string {
 	return validator.err
+}
+
+func (validator *AuthorValidator) GetJsonErrors() (string, error) {
+	errJson, err := json.Marshal(validator.GetErrors())
+	if err != nil {
+		err = errors.NewError("Json Format Error", err.Error(), &err)
+		return err.Error(), err
+	}
+	return string(errJson), nil
 }
 
 func (validator *AuthorValidator) validName(entity book.Author) {

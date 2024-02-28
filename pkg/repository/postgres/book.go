@@ -34,7 +34,7 @@ func (repo *BookRepository) Create(entity e.Entity) (bool, error) {
 		book.Description,
 		book.AuthorID)
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Book insertion into database finished.")
@@ -45,7 +45,7 @@ func (repo *BookRepository) Delete(ID string) (bool, error) {
 	logger.Log("trace", "Book deleting from database begun....")
 	_, err := repo.DB.Exec(`DELETE FROM book WHERE id = $1`, ID)
 	if err != nil {
-		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Book deleting from database finished.")
@@ -67,7 +67,7 @@ func (repo *BookRepository) Update(ID string, entity e.Entity) (bool, error) {
 		book.AuthorID,
 		ID)
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Book updating from database finished.")
@@ -80,7 +80,7 @@ func (repo *BookRepository) GetByID(ID string) (e.Entity, error) {
 	var book e2.Book
 	err := row.Scan(&book.ID, &book.Title, &book.NumberOfPages, &book.Description, &book.AuthorID)
 	if err != nil {
-		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return nil, err
 	}
 	logger.Log("trace", "Book receiving from database finished.")
@@ -95,7 +95,12 @@ func (repo *BookRepository) GetAll() ([]e.Entity, error) {
 		return make([]e.Entity, 0), err
 	}
 
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			logger.Log("error", err.Error())
+		}
+	}(rows)
 
 	var res []e.Entity
 	for rows.Next() {
@@ -107,7 +112,7 @@ func (repo *BookRepository) GetAll() ([]e.Entity, error) {
 			&book.Description,
 			&book.AuthorID)
 		if err != nil {
-			log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+			logger.Log("error", err.Error())
 		}
 		res = append(res, &book)
 	}
@@ -120,7 +125,7 @@ func (repo *BookRepository) Exist(ID string) (bool, error) {
 	var exists bool
 	err := repo.DB.QueryRow("SELECT (exists(SELECT 1 FROM book WHERE id = $1))", ID).Scan(&exists)
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Checking whether the book exists finished.")
@@ -131,7 +136,7 @@ func (repo *BookRepository) Clear() (bool, error) {
 	logger.Log("trace", "Clearing books from database begun....")
 	_, err := repo.DB.Exec("DELETE FROM book")
 	if err != nil {
-		log.Printf("%s - [ERROR] %s \n", time.Now(), err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Clearing books from database finished.")

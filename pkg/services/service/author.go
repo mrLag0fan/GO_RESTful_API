@@ -2,6 +2,7 @@ package service
 
 import (
 	"GO_RESTful_API/pkg/entities"
+	"GO_RESTful_API/pkg/errors"
 	"GO_RESTful_API/pkg/logger"
 	"GO_RESTful_API/pkg/repository"
 	"GO_RESTful_API/pkg/validation"
@@ -18,55 +19,71 @@ func NewAuthorService(repo repository.Repository, validator validation.Validator
 	return &AuthorService{repo: repo, validator: validator}
 }
 
-func (a AuthorService) Create(entity entities.Entity) (bool, map[string]string) {
+func (as AuthorService) Create(entity entities.Entity) (bool, error) {
 	logger.Log("trace", "Author was received from http for creation.")
 	logger.Log("debug", fmt.Sprintf("Author: %s", entity))
 
-	if a.validator.Valid(entity) {
-		a.repo.Create(entity)
-		return true, a.validator.GetErrors()
+	var ok = false
+	var err error = nil
+	if as.validator.Valid(entity) {
+		ok, err = as.repo.Create(entity)
+		return ok, err
 	}
 
-	logger.Log("trace", "The creation of the author was finished on service layer. ")
-	logger.Log("warning", fmt.Sprintf("Validation errors. %s", a.validator.GetErrors()))
+	jsonString, err := as.validator.GetJsonErrors()
+	if err != nil {
+		return false, err
+	}
+	err = errors.NewError("Validation Error", jsonString, nil)
 
-	return false, a.validator.GetErrors()
+	logger.Log("trace", "The creation of the author was finished on service layer. ")
+	logger.Log("warning", fmt.Sprintf("Validation errors. %s", as.validator.GetErrors()))
+
+	return false, err
 
 }
 
-func (a AuthorService) Delete(ID string) (bool, error) {
+func (as AuthorService) Delete(ID string) (bool, error) {
 	logger.Log("trace", "Author UUID was received from http for deleting author.")
 	logger.Log("debug", fmt.Sprintf("Author ID: %s", ID))
 
-	return a.repo.Delete(ID)
+	return as.repo.Delete(ID)
 
 }
 
-func (a AuthorService) Update(ID string, entity entities.Entity) (bool, map[string]string) {
+func (as AuthorService) Update(ID string, entity entities.Entity) (bool, error) {
 	logger.Log("trace", "Author UUID and updated author entities was received from http for updating author.")
 	logger.Log("debug", fmt.Sprintf("Author ID: %s \t New Author: %s", ID, entity))
 
-	if a.validator.Valid(entity) {
-		a.repo.Update(ID, entity)
+	var ok = false
+	var err error = nil
+	if as.validator.Valid(entity) {
+		ok, err = as.repo.Update(ID, entity)
+		return ok, err
 	}
+	jsonString, err := as.validator.GetJsonErrors()
+	if err != nil {
+		return false, err
+	}
+	err = errors.NewError("Validation Error", jsonString, nil)
 
 	logger.Log("trace", "The updating of the author was finished on service layer. ")
-	logger.Log("warning", fmt.Sprintf("Validation errors. %s", a.validator.GetErrors()))
-	return false, a.validator.GetErrors()
+	logger.Log("warning", fmt.Sprintf("Validation errors. %s", as.validator.GetErrors()))
+	return false, err
 }
 
-func (a AuthorService) GetByID(ID string) (entities.Entity, error) {
+func (as AuthorService) GetByID(ID string) (entities.Entity, error) {
 	logger.Log("trace", "Author UUID was received from http for receiving author.")
 	logger.Log("debug", fmt.Sprintf("Author ID: %s", ID))
-	return a.repo.GetByID(ID)
+	return as.repo.GetByID(ID)
 }
 
-func (a AuthorService) GetAll() ([]entities.Entity, error) {
+func (as AuthorService) GetAll() ([]entities.Entity, error) {
 	logger.Log("trace", "Receiving all authors.")
-	return a.repo.GetAll()
+	return as.repo.GetAll()
 }
 
-func (a AuthorService) Clear() (bool, error) {
+func (as AuthorService) Clear() (bool, error) {
 	logger.Log("trace", "Author UUID was received from http for receiving author.")
-	return a.repo.Clear()
+	return as.repo.Clear()
 }

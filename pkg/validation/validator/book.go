@@ -3,8 +3,10 @@ package validator
 import (
 	e "GO_RESTful_API/pkg/entities"
 	"GO_RESTful_API/pkg/entities/impl/book"
+	"GO_RESTful_API/pkg/errors"
 	"GO_RESTful_API/pkg/logger"
 	"GO_RESTful_API/pkg/repository"
+	"encoding/json"
 	"fmt"
 )
 
@@ -36,6 +38,15 @@ func (validator *BookValidator) GetErrors() map[string]string {
 	return validator.err
 }
 
+func (validator *BookValidator) GetJsonErrors() (string, error) {
+	errJson, err := json.Marshal(validator.GetErrors())
+	if err != nil {
+		err = errors.NewError("Json Format Error", err.Error(), &err)
+		return err.Error(), err
+	}
+	return string(errJson), nil
+}
+
 func (validator *BookValidator) validTitle(entity book.Book) {
 	logger.Log("trace", "Book title validation started....")
 	if entity.Title == "" {
@@ -54,8 +65,9 @@ func (validator *BookValidator) validNumberOfPages(entity book.Book) {
 
 func (validator *BookValidator) validAuthorID(entity book.Book) {
 	logger.Log("trace", "Book number of pages validation started....")
-	if !validator.repo.Exist(entity.AuthorID) {
-		validator.err["Book Author ID"] = fmt.Sprintf("Book author with %s ID dosen't exist", entity.AuthorID)
+	exist, err := validator.repo.Exist(entity.AuthorID)
+	if !exist || err != nil {
+		validator.err["Book Author ID"] = fmt.Sprintf("Book author with %s ID dosen't exist. %s", entity.AuthorID, err.Error())
 	}
 	logger.Log("trace", "Book number of pages validation finished.")
 }

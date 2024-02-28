@@ -3,16 +3,16 @@ package errors
 import "fmt"
 
 type Error struct {
-	cause      *Error
+	cause      *error
 	shortTitle string
 	message    string
 }
 
-func (e *Error) Cause() *Error {
+func (e *Error) Cause() *error {
 	return e.cause
 }
 
-func NewError(shortTitle string, message string, cause *Error) *Error {
+func NewError(shortTitle string, message string, cause *error) *Error {
 	return &Error{
 		shortTitle: shortTitle,
 		cause:      cause,

@@ -34,21 +34,21 @@ func (repo *AuthorRepository) Create(entity e.Entity) (bool, error) {
 		author.DeathDate)
 	if err != nil {
 		err = errors.NewError("Database error", err.Error(), nil)
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
-	logger.Log("trace", "Author insertin into database finished.")
+	logger.Log("trace", "Author insertion into database finished.")
 	return true, err
 }
 
 func (repo *AuthorRepository) Delete(ID string) (bool, error) {
-	logger.Log("trace", "Author deleteing from database begun....")
+	logger.Log("trace", "Author deleting from database begun....")
 	_, err := repo.DB.Exec(`DELETE FROM author WHERE id = $1`, ID)
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
-	logger.Log("trace", "Author deleteing from database finished.")
+	logger.Log("trace", "Author deleting from database finished.")
 	return true, err
 }
 
@@ -67,7 +67,7 @@ func (repo *AuthorRepository) Update(ID string, entity e.Entity) (bool, error) {
 		author.DeathDate,
 		ID)
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Author updating from database finished.")
@@ -80,7 +80,7 @@ func (repo *AuthorRepository) GetByID(ID string) (e.Entity, error) {
 	var author book.Author
 	err := row.Scan(&author.ID, &author.Name, &author.Surname, &author.Birthdate, &author.DeathDate)
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return nil, err
 	}
 	logger.Log("trace", "Author receiving from database finished.")
@@ -91,11 +91,16 @@ func (repo *AuthorRepository) GetAll() ([]e.Entity, error) {
 	logger.Log("trace", "Receiving all authors from database begun....")
 	rows, err := repo.DB.Query("SELECT * FROM author")
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return make([]e.Entity, 0), err
 	}
 
-	defer rows.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			logger.Log("error", err.Error())
+		}
+	}(rows)
 
 	var res []e.Entity
 	for rows.Next() {
@@ -107,7 +112,7 @@ func (repo *AuthorRepository) GetAll() ([]e.Entity, error) {
 			&author.Birthdate,
 			&author.DeathDate)
 		if err != nil {
-			logger.Log("errors", err.Error())
+			logger.Log("error", err.Error())
 		}
 		res = append(res, &author)
 	}
@@ -120,7 +125,7 @@ func (repo *AuthorRepository) Exist(ID string) (bool, error) {
 	var exists bool
 	err := repo.DB.QueryRow("SELECT (exists(SELECT 1 FROM author WHERE id = $1))", ID).Scan(&exists)
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Checking whether the author exists finished.")
@@ -131,7 +136,7 @@ func (repo *AuthorRepository) Clear() (bool, error) {
 	logger.Log("trace", "Clearing authors from database begun....")
 	_, err := repo.DB.Exec("DELETE FROM author")
 	if err != nil {
-		logger.Log("errors", err.Error())
+		logger.Log("error", err.Error())
 		return false, err
 	}
 	logger.Log("trace", "Clearing authors from database finished.")
