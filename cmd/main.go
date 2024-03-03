@@ -7,9 +7,12 @@ import (
 	"GO_RESTful_API/pkg/repository/postgres"
 	"GO_RESTful_API/pkg/services/service"
 	"GO_RESTful_API/pkg/validation/validator"
+	"context"
 )
 
 func main() {
+
+	context, cancel := context.WithCancel(context.Background())
 	authorRepo := postgres.NewAuthorRepository(&impl.RealUUIDGenerator{})
 	bookRepo := postgres.NewBookRepository(&impl.RealUUIDGenerator{})
 	authorValidator := validator.NewAuthorValidator()
@@ -21,4 +24,6 @@ func main() {
 
 	server := api.NewServer([]api.Controller{authorController, bookController})
 	server.HandleRequests()
+
+	cancel()
 }
